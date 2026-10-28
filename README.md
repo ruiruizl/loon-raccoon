@@ -47,7 +47,7 @@ GitHub 上没有现成的 Loon 版（只有 Surge 原版，以及几个 Go 写�
 
 ## 已知坑
 
-- 公共 paste 直链可能哪天失效。要长期用，把 `raccoon-openai-loon.js` 丢到自己的 GitHub raw（或任意静态托管），再把插件里两处 `https://api.pastes.dev/sKH3OJlrjr` 换成你的地址即可。
+- 插件里的脚本直链已指向本仓库 `main` 分支的 raw；仓库文件别删/别改名，否则插件失效。国内直连 `raw.githubusercontent.com` 不稳时可换 jsDelivr 镜像：`https://cdn.jsdelivr.net/gh/ruiruizl/loon-raccoon@main/raccoon-openai.js`。
 - 密码是明文存在插件参数里的，别把填好参数的插件再分享出去。
 - 走的是小浣熊的 Web 接口（`/api/web/llm/v2/...`），上游改协议就得改脚本。
 - 客户端如果开了「非流式 + 大 max_tokens」，请求体会被完整缓冲（`requires_body=true`），这是正常现象。
