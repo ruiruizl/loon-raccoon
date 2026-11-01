@@ -11,10 +11,8 @@ var ENC_KEY = "senseraccoon2023";
 var TS_KEY = "raccoon_openai_tokens";
 var CAT_KEY = "raccoon_openai_catalog";
 var CAT_TTL = 10 * 60 * 1000;
-var COOL_KEY = "raccoon_openai_cooldown";
 var INFLIGHT_KEY = "raccoon_openai_inflight";
 var MAX_CONCURRENCY = Math.max(1, parseInt(A.max_concurrency || "3", 10));
-var COOLDOWN_MS = Math.max(10, parseInt(A.cooldown_seconds || "300", 10)) * 1000;
 
 var FALLBACK_MODELS = [
   { id: "raccoon-8c4485", name: "Raccoon-Work" },
@@ -234,19 +232,6 @@ function pickToken() {
   return ts[Math.floor(Math.random() * ts.length)];
 }
 
-function coolLeftMs() {
-  try {
-    var j = JSON.parse($persistentStore.read(COOL_KEY) || "null");
-    if (!j || !j.until) return 0;
-    return j.until - Date.now();
-  } catch (e) { return 0; }
-}
-function setCooldown(extraMs) {
-  try {
-    var until = Date.now() + COOLDOWN_MS + (extraMs || 0);
-    $persistentStore.write(JSON.stringify({ until: until, at: Date.now() }), COOL_KEY);
-  } catch (e) {}
-}
 function inflightCount() {
   try { return parseInt($persistentStore.read(INFLIGHT_KEY) || "0", 10) || 0; } catch (e) { return 0; }
 }
@@ -491,8 +476,7 @@ function upstreamChat(token, reqBody, attempt, cb) {
     }
     var st = resp ? resp.status : 0;
     if (st === 429) {
-      setCooldown();
-      return cb({ status: 429, body: { error: { message: "小浣熊上游限流(429)，已熔断 " + Math.round(COOLDOWN_MS / 1000) + "s", type: "rate_limit" } } });
+      return cb({ status: 429, body: { error: { message: "小浣熊上游限流(429): " + String(data || "").slice(0, 200), type: "rate_limit" } } });
     }
     if (st >= 500) {
       if (attempt < 1) return upstreamChat(token, reqBody, attempt + 1, cb);
@@ -509,11 +493,6 @@ function upstreamChat(token, reqBody, attempt, cb) {
 }
 
 function handleChat() {
-  var cool = coolLeftMs();
-  if (cool > 0) {
-    errResp(429, "小浣熊上游限流熔断中，请 " + Math.ceil(cool / 1000) + "s 后重试", "rate_limit");
-    return;
-  }
   if (inflightCount() >= MAX_CONCURRENCY) {
     errResp(429, "小浣熊反代并发超限(" + MAX_CONCURRENCY + ")，请降低并发", "rate_limit");
     return;
@@ -580,8 +559,7 @@ function handleProbe() {
   });
 }
 function handleReset() {
-  try { $persistentStore.write("", COOL_KEY); } catch (e) {}
-  jsonResp(200, { ok: true, message: "熔断已清除", cooldown_left: 0 });
+  jsonResp(200, { ok: true, message: "脚本已无熔断机制（429 原样透传）" });
 }
 
 function main() {
