@@ -579,6 +579,10 @@ function handleProbe() {
     );
   });
 }
+function handleReset() {
+  try { $persistentStore.write("", COOL_KEY); } catch (e) {}
+  jsonResp(200, { ok: true, message: "熔断已清除", cooldown_left: 0 });
+}
 
 function main() {
   try {
@@ -599,8 +603,10 @@ function main() {
       handleCheckin();
     } else if (/\/probe\/?$/.test(path)) {
       handleProbe();
+    } else if (/\/reset\/?$/.test(path)) {
+      handleReset();
     } else {
-      errResp(404, "Raccoon OpenAI Proxy: 支持 /v1/models、/v1/chat/completions、/v1/checkin、/v1/probe");
+      errResp(404, "Raccoon OpenAI Proxy: 支持 /v1/models、/v1/chat/completions、/v1/checkin、/v1/probe、/v1/reset");
     }
   } catch (e) {
     try { errResp(500, "脚本内部异常: " + e); } catch (e2) {}
