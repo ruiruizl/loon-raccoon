@@ -1,0 +1,27 @@
+#!name = 小浣熊 OpenAI 反代（限流感知 v4）
+#!desc = 商汤小浣熊转 OpenAI 兼容 API。v4 改为接管响应：内置 429 熔断（默认 300s）、并发控制（默认 3）、网络/5xx 自动重试一次、多 token 逗号分隔轮换。手机号+密码自动登录或直填 token。
+#!author = LinkPass888（原 Surge 版）· Loon 移植 · v4 限流感知
+#!homepage = https://github.com/ruiruizl/loon-raccoon
+#!loon_version = 3.5.1(983)
+#!system = iOS,iPadOS,macOS
+#!date = 2026-11-01
+#!tag = AI,工具
+#!type = normal
+
+[Argument]
+nation = input,"86",type=string,tag=国家码,desc=手机号国家码，默认 86
+phone = input,"none",type=string,tag=手机号,desc=小浣熊登录手机号；保留 none 表示不填
+password = input,"none",type=string,tag=密码,desc=小浣熊登录密码（明文保存在插件参数中），保留 none 表示不填
+token = input,"none",type=string,tag=Access Token,desc=可选：直接粘贴 access_token（多个用逗号分隔，随机轮换）；填了优先用它、不再登录。保留 none 表示不填
+checkin = switch,true,tag=每日自动签到
+checkin_cron = input,"12 0 * * *",type=string,tag=签到时间,desc=五段 Cron 表达式（分 时 日 月 周）
+max_concurrency = input,"3",type=int,tag=最大并发,desc=同时最多多少个在途上游请求，超出直接 429（默认 3）
+cooldown_seconds = input,"300",type=int,tag=熔断秒数,desc=收到上游 429 后熔断时长（默认 300）
+
+[Script]
+request if ${url} ~= /^https?:\/\/xiaohuanxiong\.com\/v1\/(chat\/completions|models|checkin|probe)(\/|\?|$)/ then script("https://cdn.jsdelivr.net/gh/ruiruizl/loon-raccoon@main/raccoon-openai-v4.js", {${nation}, ${phone}, ${password}, ${token}, ${max_concurrency}, ${cooldown_seconds}}) with requires_body=true, timeout=600, tag="小浣熊反代 v4"
+
+cron ${checkin_cron} then script("https://cdn.jsdelivr.net/gh/ruiruizl/loon-raccoon@main/raccoon-openai-v4.js", {${nation}, ${phone}, ${password}, ${token}, ${max_concurrency}, ${cooldown_seconds}}) with enable=${checkin}, timeout=120, tag="小浣熊每日签到 v4"
+
+[Mitm]
+hostname = xiaohuanxiong.com, *.xiaohuanxiong.com
