@@ -1,0 +1,16 @@
+#!name=小浣熊 OpenAI 反代（Surge 移植版）
+#!desc=把商汤小浣熊（office-raccoon）包装成 OpenAI 兼容 API：手机号+密码自动登录、token 自动刷新，/v1/chat/completions 透传，/v1/models 动态模型目录，附每日自动签到。由 Loon 版 v6 移植，超时已改秒。
+#!author=LinkPass888（原 Surge 版）· Surge 移植
+#!homepage=https://github.com/ruiruizl/loon-raccoon
+#!date=2026-11-21
+#!tag=AI,工具
+#!system=iOS,macOS
+#!type=normal
+
+[Script]
+raccoon-request = type=http-request,pattern=^https?://xiaohuanxiong\.com/v1/(chat/completions|models|checkin|probe)(/|\?|$),requires-body=1,max-size=-1,timeout=600,script-path=https://cdn.jsdelivr.net/gh/ruiruizl/loon-raccoon@main/raccoon-openai-surge.js,tag=小浣熊反代,argument=nation=86
+
+raccoon-checkin = type=cron,cron="12 0 * * *",script-path=https://cdn.jsdelivr.net/gh/ruiruizl/loon-raccoon@main/raccoon-openai-surge.js,timeout=120,tag=小浣熊每日签到,argument=nation=86
+
+[MITM]
+hostname = %APPEND% xiaohuanxiong.com, *.xiaohuanxiong.com
