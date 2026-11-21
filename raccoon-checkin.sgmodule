@@ -1,0 +1,11 @@
+#!name=小浣熊每日签到（Surge）
+#!desc=每天 00:12 自动登录并查询小浣熊每日积分发放，结果可选推送到 Bark/Server酱 webhook。独立模块，不依赖反代。
+#!author=ruiruizl
+#!homepage=https://github.com/ruiruizl/loon-raccoon
+#!date=2026-11-22
+#!tag=AI,工具
+#!system=iOS,macOS
+#!type=normal
+
+[Script]
+raccoon-checkin = type=cron,cronexp="12 0 * * *",script-path=https://cdn.jsdelivr.net/gh/ruiruizl/loon-raccoon@main/raccoon-checkin.js,timeout=120,tag=小浣熊每日签到,argument=nation=86,phone=REPLACE_ME,password=REPLACE_ME
