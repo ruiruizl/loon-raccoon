@@ -1,0 +1,20 @@
+# NAME: yusen-direct
+# DESC: 小浣熊站群直连 (5 个域名)
+# AUTHOR: ruiruizl
+# UPDATED: 2026-10-28
+#
+# Loon 用法 (配置 → [Rule] 区块内加一行):
+#   RULE-SET,https://raw.githubusercontent.com/ruiruizl/loon-raccoon/main/yusen-direct.list,DIRECT
+#
+# 精确域名
+DOMAIN,13.yusen.cyou,DIRECT
+DOMAIN,aaa.yusen6.ccwu.cc,DIRECT
+DOMAIN,emby.yusen.us.ci,DIRECT
+DOMAIN,embya.yusen.cyou,DIRECT
+DOMAIN,emby.yusen.cc.cd,DIRECT
+#
+# 后缀版 (覆盖整站子域名, 需要时把上面 5 行注释掉、下面 4 行取消注释)
+#DOMAIN-SUFFIX,yusen.cyou,DIRECT
+#DOMAIN-SUFFIX,yusen6.ccwu.cc,DIRECT
+#DOMAIN-SUFFIX,yusen.us.ci,DIRECT
+#DOMAIN-SUFFIX,yusen.cc.cd,DIRECT
